@@ -1392,8 +1392,8 @@ function showCountdownOverlay(callback) {
 
     function submitCounting() {
         if (parseInt(document.getElementById('game-input').value) === currentCorrectCount) {
-            updateBalance(10000.001);
-            showModal("✨ Correct! You earned ₱10000.001!");
+            updateBalance(0.001);
+            showModal("✨ Correct! You earned ₱0.001!");
         } else { showModal("❌ Wrong Answer!"); }
         showCountdownOverlay(renderCountingRound);
     }
@@ -1412,8 +1412,8 @@ function showCountdownOverlay(callback) {
     }
 
     function catchCat() {
-        updateBalance(0.01);
-        showModal("✨ Correct! You earned ₱0.01!");
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
         showCountdownOverlay(renderCatRound);
     }
 
@@ -1437,8 +1437,8 @@ function showCountdownOverlay(callback) {
 
     function checkCaptcha() {
         if (document.getElementById('captcha-user-input').value.toUpperCase() === currentCaptcha) {
-            updateBalance(0.01);
-            showModal("✨ Correct! You earned ₱0.01!");
+            updateBalance(0.001);
+            showModal("✨ Correct! You earned ₱0.001!");
         } else { showModal("❌ Wrong Captcha!"); }
         showCountdownOverlay(generateCaptcha);
     }
@@ -1475,8 +1475,8 @@ function showCountdownOverlay(callback) {
     function checkFlagAnswer() {
         if (!userSelectedFlag) return showModal("Select a flag first!");
         if (userSelectedFlag === correctFlagName) {
-            updateBalance(0.01);
-            showModal("✨ Correct! You earned ₱0.01!");
+            updateBalance(0.001);
+            showModal("✨ Correct! You earned ₱0.001!");
         } else { showModal("❌ Wrong! It was " + correctFlagName); }
         showCountdownOverlay(generateFlag);
     }
@@ -1561,7 +1561,7 @@ function selectColor(name) {
 function checkColorAnswer() {
     if (!userSelectedColor) return showModal("Select a color first!");
     if (userSelectedColor === correctColorName) {
-        updateBalance(10000.001);
+        updateBalance(0.001);
         showModal("✨ Correct! You earned ₱0.001!");
     } else { showModal("❌ Wrong! It was " + correctColorName); }
     showCountdownOverlay(generateColor);
