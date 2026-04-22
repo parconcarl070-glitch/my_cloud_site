@@ -825,6 +825,20 @@ h1 span {
 
 </div>
 
+
+
+
+<button onclick="checkStatusNgUser()" style="background-color: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; margin-top: 10px;">
+    Check My Withdrawal Status
+</button>
+
+
+
+
+
+
+        
+
 </div>
 <div id="games" class="page">
 
@@ -1748,6 +1762,42 @@ function updateGlobalLimitDisplay() {
     
     return parseInt(remaining);
 }
+
+
+// --- DITO NAGSISIMULA ANG STATUS CHECK CODE ---
+function checkStatusNgUser() {
+    // 1. Siguraduhin na may scriptURL na sa taas, kung wala pa, i-paste mo rin dito:
+    const scriptURL = "https://script.google.com/macros/s/AKfycby.../exec"; 
+
+    const userCode = registeredUser.userCode; // Kinukuha ang ID ng user na naka-login
+    
+    fetch(`${scriptURL}?userCode=${userCode}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length > 0) {
+                // Kunin ang pinakabagong request
+                let hulingRequest = data[data.length - 1];
+                
+                // Magpakita ng Alert
+                alert("Withdrawal Status Update:\n\n" +
+                      "Amount: ₱" + hulingRequest.amount + "\n" +
+                      "Status: " + hulingRequest.status);
+            } else {
+                alert("Wala ka pang na-isubmit na withdrawal request.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Hindi ma-check ang status sa ngayon. Subukan muli mamaya.");
+        });
+}
+
+
+
+
+    
+
+    
 
 // Tawagin agad para lumabas ang number
 updateGlobalLimitDisplay();
