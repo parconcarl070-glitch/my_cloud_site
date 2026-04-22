@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cloud Site | Secure Auth & Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            /* COLOR UPDATES ONLY */
+            --primary-red: #ff0000;         /* Pure Red */
+            --dark-red: #b30000;            /* Dark Red */
+            --soft-pink: #ffc2d1;           /* Darker Pink Background */
+            --white: #ffe5ec;               /* Light Pink (dating White) */
+            --text-main: #000000;           /* Black Words */
+            --text-sub: #1a1a1a;            /* Black Sub-text */
+            --border-color: #ff85a2;        /* Pink Border */
+            --gold: #ff0000;                /* Red Gold */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--soft-pink);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Background Design */
+        .cloudy-bg {
+            background: linear-gradient(135deg, #ff4d6d 0%, #ff85a2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            filter: blur(10px);
+            opacity: 0.7;
+        }
+        .cloud-1 { width: 100px; height: 100px; top: -20px; left: -30px; }
+        .cloud-2 { width: 150px; height: 150px; bottom: -50px; right: -40px; }
+        .cloud-3 { width: 80px; height: 80px; top: 40%; right: 10px; opacity: 0.4; }
+
+        /* Auth Section */
+        .auth-container {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-section {
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .custom-logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo-box {
+            background: var(--white);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-red);
+        }
+
+        .logo-name {
+            font-size: 24px;
+            font-weight: 900;
+            margin: 0;
+            background: #000;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fairy { font-size: 30px; }
+
+        .auth-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 22px;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { font-size: 11px; font-weight: 700; color: var(--dark-red); text-transform: uppercase; margin-bottom: 5px; display: block; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--primary-red); border-radius: 10px; box-sizing: border-box; outline: none; color: #000; background: #fff; }
+        input:focus { border-color: var(--primary-red); }
+        input[readonly] { background: #f9f9f9; cursor: not-allowed; border-style: dashed; }
+
+        .btn-action {
+            width: 100%; padding: 15px; background: var(--primary-red); color: white;
+            border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn-action:active { transform: scale(0.98); }
+
+        /* Dashboard Styles */
+        .dashboard-container { width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; }
+        .page { display: none; margin-bottom: 80px; animation: fadeIn 0.3s; text-align: center; }
+        .page.active-page { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card {
+
+background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px;
+
+box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+cursor: pointer; transition: all 0.2s;
+
+border: 1px solid var(--border-color);
+
+color: #000;
+
+}
+        .card:hover { border-color: var(--primary-red); }
+        .card:active { transform: scale(0.97); background-color: #fffafb; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* Wallet Styles */
+        .wallet-card {
+            background: linear-gradient(135deg, #ff0000 0%, #800000 100%);
+            color: white; padding: 30px; border-radius: 20px; text-align: center;
+            margin-bottom: 20px; position: relative; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .wallet-card b { font-size: 32px; color: #fff !important; display: block; margin: 10px 0; }
+        .cashout-btn { background: var(--gold); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* History Styles */
+        .history-section { margin-top: 20px; text-align: left; }
+        .history-item { background: var(--white); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary-red); }
+        .history-info b { display: block; font-size: 14px; color: #000; }
+        .history-info small { color: #333; font-size: 11px; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 450px; background: var(--white); height: 75px;
+    display: flex; justify-content: space-around; align-items: center;
+    border-top: 2px solid var(--primary-red); z-index: 100;
+}
+
+.nav-btn { 
+    background: none; 
+    border: none; 
+    text-align: center; 
+    /* Dito natin pupuersahin ang kulay Pula */
+    color: #ff0000 !important; 
+    cursor: pointer; 
+    flex: 1; 
+    height: 100%; 
+    font-size: 9px;
+    font-weight: 900 !important; /* Para makapal ang font gaya ng sa Invite */
+    text-transform: uppercase;
+}
+
+.premium-invite-card {
+    background: white; border-radius: 20px; margin: 15px auto; width: 90%;
+    overflow: hidden; border: 1px solid var(--border-color);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.1);
+}
+.card-header { background: var(--primary-red); color: white; padding: 10px; font-size: 12px; font-weight: 900; }
+.invite-content { padding: 15px; }
+.invite-row { margin-bottom: 12px; text-align: left; }
+.copy-wrapper { 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: var(--soft-pink); padding: 10px; border-radius: 10px; 
+    border: 1px dashed var(--primary-red); margin-top: 5px;
+}
+.mini-copy-btn { 
+    background: var(--primary-red); color: white; border: none; 
+    padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: bold; 
+}
+
+        /* Modal */
+        #customModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content { background: var(--white); padding: 25px; border-radius: 20px; text-align: center; width: 85%; max-width: 300px; color: #000; border: 2px solid var(--primary-red); }
+
+        /* Form Sub-headers */
+        .form-section-title { background: var(--soft-pink); padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; margin: 15px 0 10px 0; color: #000; }
+
+/* --- GAME STYLES FIXED --- */
+      .game-screen {
+    /* Mula White, gagawin nating Pink Gradient */
+    background: linear-gradient(145deg, #ffc2d1, #ff85a2); 
+    padding: 30px 20px;
+    border-radius: 25px;
+    text-align: center;
+    position: relative;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #ff0000; /* Red border para litaw ang box */
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+        .game-screen h3 {
+            color: var(--dark-red);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+#animal-container {
+    background: rgba(255, 255, 255, 0.4); /* Semi-transparent white para lumitaw ang animals */
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    border: 1px dashed #ff0000;
+    width: 80%; /* Para pantay ang itsura */
+}
+
+        #game-input {
+            width: 80px;
+            height: 50px;
+            font-size: 22px;
+            text-align: center;
+            border: 2px solid var(--primary-red);
+            border-radius: 12px;
+            background: #fff;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+
+        .game-timer-text { font-weight: bold; color: var(--primary-red); margin-top: 10px; font-size: 14px; }
+        #cat-target { font-size: 50px; position: absolute; cursor: pointer; transition: 0.1s; user-select: none; }
+        
+        /* Countdown Overlay */
+        #countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Semi-transparent Pink background */
+    background: rgba(255, 194, 209, 0.9); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    backdrop-filter: blur(5px); /* Professional Blur Effect */
+}
+        .cd-number { font-size: 50px; font-weight: 900; color: var(--primary-red); }
+
+/* --- PROFILE DETAILS STYLE --- */
+.profile-list {
+    background: #ffffff; /* Puting box */
+    border-radius: 20px;
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #ff85a2;
+}
+
+.profile-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.profile-item:last-child {
+    border-bottom: none;
+}
+
+.profile-item b {
+    color: #ff0000;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.profile-item span {
+    color: #000;
+    font-weight: bold;
+}
+
+.copy-btn {
+    background: var(--primary-red); 
+    border: none; 
+    padding: 8px 15px; 
+    border-radius: 8px;
+    font-size: 12px; 
+    cursor: pointer; 
+    margin-top: 8px; 
+    color: #fff;
+    font-weight: bold; 
+    transition: background 0.2s;
+}
+
+.copy-btn:active { 
+    background: var(--dark-red); 
+    transform: scale(0.95); 
+}
+/* --- THE MASTER PREMIUM BOX (Para sa Lahat) --- */
+.universal-card {
+    background: linear-gradient(135deg, #ff0000 0%, #800000 100%);
+    width: 90% !important; /* Pinupuwersa ang width para pantay sa Wallet box */
+    max-width: 400px;
+    min-height: 100px; /* Eksaktong laki para sa lahat */
+    border-radius: 20px;
+    margin: 0 auto 20px auto; /* Naka-center at may pagitan */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 10px 20px rgba(128, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s;
+    gap: 15px;
+    box-sizing: border-box; /* Para hindi lumampas sa screen */
+    text-decoration: none;
+}
+
+.universal-card:active {
+    transform: scale(0.95);
+}
+
+.universal-card span {
+    font-size: 28px; /* Size ng emoji */
+}
+/* --- DASHBOARD PREMIUM CARDS --- */
+.dashboard-card-premium {
+    background: linear-gradient(135deg, #ff0000 0%, #800000 100%);
+    color: white !important;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 10px 20px rgba(128, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.dashboard-card-premium:active {
+    transform: scale(0.97);
+}
+
+.dashboard-card-premium h2, 
+.dashboard-card-premium p, 
+.dashboard-card-premium span, 
+.dashboard-card-premium b {
+    color: white !important;
+}
+
+/* Para sa grid ng Balance at Status */
+.stats-grid-premium {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+}
+/* --- CAPTCHA GAME STYLE --- */
+#captcha-display {
+    background: #fff;
+    color: #000;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 35px;
+    font-weight: 900;
+    padding: 15px 30px;
+    border-radius: 10px;
+    letter-spacing: 8px;
+    text-decoration: line-through; /* Para mukhang totoong captcha */
+    user-select: none;
+    border: 3px solid var(--primary-red);
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.captcha-input {
+    width: 80% !important;
+    text-align: center;
+    font-size: 20px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+/* --- FLAG GAME STYLE --- */
+.flag-display {
+    font-size: 80px; /* Malaking flag emoji */
+    margin-bottom: 20px;
+}
+
+.options-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+.option-btn {
+    background: white;
+    color: black;
+    border: 2px solid var(--primary-red);
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.option-btn:active {
+    background: var(--soft-pink);
+    transform: scale(0.95);
+}
+/* PREMIUM PROFILE CARD STYLES */
+.profile-card {
+    border: 2px solid var(--border-color); /* Pink border para sa profile */
+}
+
+.profile-detail-row {
+    text-align: left;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee; /* Hati bawat detalye */
+}
+
+.profile-detail-row:last-child {
+    border-bottom: none; /* Alisin ang hati sa huli */
+}
+
+.profile-detail-row label {
+    display: block;
+    color: #888;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.profile-detail-row b {
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.password-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Premium Modal Design */
+.modal-content {
+    background: #ffffff;
+    border-radius: 25px;
+    padding: 30px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    text-align: center;
+    border-top: 5px solid var(--primary-red); /* Accent line at the top */
+}
+
+#modalMsg {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+#modalMsg b {
+    color: var(--primary-red);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+/* OK Button Upgrade */
+.btn-action, .btn-close-modal {
+    /* Matingkad na Pula (Pure Red) */
+    background: #ff0000; 
+    border: none;
+    border-radius: 12px;
+    color: white;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: 0.3s transform;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.btn-action:active {
+    transform: scale(0.95);
+    background: #cc0000; /* Konting dilim lang pag pinindot para halatang clickable */
+}
+/* Eto ang master class para sa lahat ng Page Headers */
+.page-title {
+    color: #ff0000 !important; /* Pure Red */
+    font-weight: 900 !important; /* Makapal na Bold */
+    text-transform: uppercase;
+    font-size: 28px; /* Size ng malaking Dashboard text */
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* Eto ang sigurado, lahat ng <h1> sa bawat page ay magiging Pula */
+/* Eto ang gagawa ng Red Box para sa lahat ng Title Headers */
+h1, .page-title {
+    background: #ff0000;
+    color: #ffffff !important;
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    font-size: 22px !important;
+    
+    /* DITO ANG PAGBABAGO: Centered Content */
+    display: flex !important;
+    justify-content: center !important; /* Gitna ang text */
+    align-items: center !important;
+    text-align: center !important;
+    
+    margin-bottom: 25px !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+    position: relative; /* Para sa bell icon */
+}
+
+/* Para yung Bell icon ay hindi humarang sa gitna, 
+ilagay natin siya sa gilid pero ang text ay mananatiling sentro */
+h1 span {
+    position: absolute;
+    right: 15px; /* Usog sa dulo para text lang ang nasa gitna */
+    font-size: 25px;
+}
+/* Custom Style para sa Dropdown Menus */
+.custom-select-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2px 10px;
+    margin-bottom: 15px;
+    border: 2px solid #ff4d4d; /* Red border accent */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.eye-catching-select {
+    width: 100%;
+    border: none;
+    padding: 12px;
+    font-weight: 900;
+    color: #ff0000; /* Red Text */
+    text-transform: uppercase;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+/* Hover effect para sa boxes */
+.dashboard-card-premium:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease;
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+}
+.cashout-box {
+    /* Ginagaya ang 'Hello, Carl' box */
+    background: linear-gradient(135deg, #ff0000, #8b0000); 
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto; /* Para may space sa taas at naka-center */
+    width: 90%; /* Parehas sa lapad ng Hello Carl box */
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cashout-box h3 {
+    margin: 0;
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.cashout-box p {
+    margin: 5px 0 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+   </style>
+</head>
+<body>
+<div id="customModal">
+    <div class="modal-content">
+        <p id="modalMsg" style="font-weight: 600; margin-bottom: 20px;"></p>
+        <button onclick="closeModal()" class="btn-action">OK</button>
+    </div>
+</div>
+<div id="auth-screen" class="auth-container">
+    <div class="header-section cloudy-bg">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        <div class="custom-logo-wrapper">
+            <span class="fairy">🧚‍♀️</span>
+            <div class="logo-box"><h1 class="logo-name">Cloud Site</h1></div>
+            <span class="fairy">🧚‍♀️</span>
+        </div>
+        <p id="page-sub-text" style="color: #000; position: relative; z-index: 1; font-weight: bold;">Secure Registration System</p>
+    </div>
+
+    <div class="auth-card">
+        <div id="signup-form">
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">  
+            <div class="input-group"><label>Inviter Name</label><input type="text" id="reg-inviter-name" placeholder="Inviter Name"></div>  
+            <div class="input-group"><label>Inviter Code</label><input type="text" id="reg-inviter-code" placeholder="Inviter Code"></div>  
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">  
+            <div class="input-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Juan Dela Cruz"></div>
+            <div class="input-group"><label>Email Address</label><input type="email" id="reg-email" placeholder="name@gmail.com"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="reg-pass" placeholder="Create Password"></div>
+            <div class="input-group"><label>Confirm Password</label><input type="password" id="reg-pass-confirm" placeholder="Confirm Password"></div>
+             <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">  
+            <button class="btn-action" onclick="handleSignup()">Register Account</button>
+            <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #000;">
+                Already Registered? <span style="color: var(--primary-red); cursor: pointer; font-weight: bold;" onclick="toggleAuth('login')">Log In</span>
+            </p>
+        </div>
+
+        <div id="login-form" class="hidden">
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">  
+           <div class="input-group"><label>Full Name</label><input type="text" id="login-name" placeholder="Juan Dela Cruz"></div>
+            <div class="input-group"><label>Email Address</label><input type="email" id="login-email" placeholder="name@gmail.com"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="login-pass" placeholder="Enter Password"></div>
+             <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">  
+            <button class="btn-action" onclick="handleLogin()">Log In</button>
+            <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #000;">
+                Need an Account? <span style="color: var(--primary-red); cursor: pointer; font-weight: bold;" onclick="toggleAuth('signup')">Register</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="dashboard-screen" class="dashboard-container hidden">
+    <div id="home" class="page active-page">
+        <h1 style="color: var(--primary-red); display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; font-weight: 900; margin-bottom: 20px;">
+            DASHBOARD 
+            <span onclick="showModal('No New Notification')" style="cursor: pointer; font-size: 40px;">🔔</span>
+        </h1>
+
+        <div class="dashboard-card-premium" style="text-align: center; padding: 30px; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 28px;">Hello, <span id="user-display-name">User</span>!</h2>
+            <p style="margin: 10px 0 0 0; opacity: 0.8; font-size: 16px;">Welcome back to your dashboard.</p>
+        </div>
+  <div class="cashout-box">
+    <h3>Total Cashout</h3>
+    <p>₱0.00</p>
+</div>
+        <div class="stats-grid-premium" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="dashboard-card-premium" onclick="switchPage('wallet', document.querySelectorAll('.nav-btn')[1])" style="text-align: center; padding: 20px;">
+                <span style="font-size: 14px; opacity: 0.8;">Balance</span><br>
+                <b id="balance-display" style="font-size: 22px;">₱0.00</b>
+            </div>
+                        <div class="dashboard-card-premium" style="text-align: center; padding: 20px;">
+                <span style="font-size: 14px; opacity: 0.8;">Status</span><br>
+                <b style="font-size: 22px; color: #4ade80 !important;">Active</b>
+            </div>
+          
+            
+
+            
+    </div>
+</div>
+
+
+
+    <div id="wallet" class="page">
+        <h1>MY WALLET</h1>
+        <div class="wallet-card">
+            <p style="margin:0; opacity:0.8;">AVAILABLE BALANCE</p>
+            <b id="wallet-balance-display">₱0.00</b>
+            <p style="font-size: 10px; opacity:0.5;">VERIFIED CLOUD SITE ACCOUNT</p>
+        </div>
+        <div class="card">
+            <p style="font-size: 13px; color: var(--text-sub);">MINIMUM CASHOUT: ₱1.00</p>
+            <button class="cashout-btn" onclick="openCashoutForm()">💸 CASHOUT NOW</button>
+        </div>
+
+        <div class="history-section">
+            <p style="font-weight: bold; font-size: 12px; color: var(--text-sub); text-transform: uppercase;">TRANSACTION HISTORY</p>
+            <div id="history-list">
+                <p style="text-align: center; color: #ccc; font-size: 12px; margin-top: 10px;">NO HISTORY YET.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="cashout-form-page" class="page">
+      <p style="font-size: 11px; color: var(--primary-red); font-weight: bold; background: #fff1f1; padding: 10px; border-radius: 8px; border: 1px solid var(--primary-red); margin-bottom: 15px;">
+    ⏰ CASHOUT HOURS: 5:00 PM - 6:00 PM (Monday-Friday)
+</p>
+ 
+  <div style="
+    background: red; 
+    color: white; 
+    padding: 15px; 
+    border-radius: 20px; 
+    text-align: center; 
+    font-weight: bold; 
+    font-size: 24px; 
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    margin: 20px 0;
+">
+    CASH OUT FORM
+    
+    <div id="global-limit-circle" style="
+        background: white; 
+        color: red; 
+        width: 30px; 
+        height: 30px; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 16px; 
+        position: absolute; 
+        right: 20px; /* Distansya mula sa kanan */
+        border: 2px solid white;
+    ">20</div>
+</div>
+  
+  
+  
+  
+
+
+<div class="card" style="text-align: left;">
+
+<div class="form-section-title">USER DETAILS</div>
+
+<div class="input-group"><label>User Name</label><input type="text" id="f-name" readonly></div>
+
+<div class="input-group"><label>Email Address</label><input type="text" id="f-email" readonly></div>
+
+<div class="input-group"><label>User Code</label><input type="text" id="f-code" readonly></div>
+
+<div class="input-group"><label>Referral Link</label><input type="text" id="f-link" readonly></div>
+<div class="form-section-title">UPLINE INFO</div>
+
+<div class="input-group"><label>Upline Name</label><input type="text" id="f-upline-name" readonly></div>
+
+<div class="input-group"><label>Upline Code</label><input type="text" id="f-upline-code" readonly></div>
+<div class="form-section-title">PAYOUT METHOD (GCASH)</div>
+
+<div class="input-group"><label>GCash Number</label><input type="number" id="f-gcash-num" placeholder="09XXXXXXXXX"></div>
+
+<div class="input-group"><label>GCash Name</label><input type="text" id="f-gcash-name" placeholder="Name on GCash"></div>
+
+
+<div class="input-group">
+
+<label>Amount to Cashout</label>
+
+<select id="f-amount-select" onchange="calculatePayout()">
+  <option value="0">Select Amount</option>
+
+<option value="1">₱1.00</option>
+
+<option value="2">₱2.00</option>
+
+<option value="4">₱4.00</option>
+
+<option value="6">₱6.00</option>
+
+<option value="8">₱8.00</option>
+
+<option value="10">₱10.00</option>
+
+</select>
+
+</div>
+
+
+
+<div class="input-group">
+
+<label>Amount to Receive (Less 50%)</label>
+
+<input type="text" id="f-received" readonly placeholder="₱0.00">
+
+</div>
+<p style="font-size: 10px; color: #777; line-height: 1.4; background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082;">
+
+<b>Note:</b> The 50% deduction serves as a safety net for server maintenance and platform sustainability. By clicking submit, you agree to these terms.
+
+</p>
+
+
+
+<button class="btn-action" style="margin-top: 15px;" onclick="processCashout()">Submit Request</button>
+
+<button class="btn-action" style="margin-top: 10px; background: #555;" onclick="switchPage('wallet', document.querySelectorAll('.nav-btn')[1])">Cancel</button>
+
+</div>
+
+</div>
+<div id="games" class="page">
+
+<h1>CATEGORIES</h1>
+
+
+<div id="game-menu">
+
+<div class="universal-card" onclick="initCountingAnimals()">
+
+<span>🐾</span> Counting Animals
+
+</div>
+
+<div class="universal-card" onclick="initCatchingCat()">
+
+<span>🐱</span> Catching Cat
+
+</div>
+
+<div class="universal-card" onclick="initGuessTheFlag()">
+
+<span>🚩</span> Guess the Flag
+
+</div>
+
+<div class="universal-card" onclick="initCaptchaGame()">
+
+<span>🤖</span> Captcha Solver
+
+</div>
+<div class="universal-card" onclick="initMathGame()">
+    <span>➕</span> Math Solve
+    
+</div>
+
+<div class="universal-card" onclick="initShapeGame()">
+    <span>📐</span> Guess the Shape
+    
+</div>
+
+<div class="universal-card" onclick="initTransGame()">
+    <span>🔤</span> Translation
+    
+</div>
+
+<div class="universal-card" onclick="initColorGame()">
+    <span>🎨</span> Guess the Color
+  
+</div>
+
+<div class="universal-card" onclick="initSentenceGame()">
+    <span>📝</span> Complete the Sentence
+    
+</div>
+</div>
+
+
+
+
+<div id="game-area" class="hidden">
+
+<div class="game-screen" id="game-canvas">
+
+</div>
+
+<p id="game-timer" class="game-timer-text"></p>
+
+<button class="btn-action" style="margin-top:10px; background:#333;" onclick="exitGame()">Back to Menu</button>
+
+</div>
+
+</div>
+
+<div id="invite-page" class="page">
+
+<h1>REFERRAL</h1>
+
+
+<div class="premium-invite-card">
+  <div class="card-header">MY REFERRAL INFO</div>
+
+<div class="invite-content">
+
+<div class="invite-row">
+
+<label>MY USER CODE</label>
+
+<div class="copy-wrapper">
+
+<b id="inv-code">---</b>
+
+<button class="mini-copy-btn" onclick="copyText('inv-code')">COPY</button>
+
+</div>
+
+</div>
+
+<div class="invite-row">
+
+<label>MY REFERRAL LINK</label>
+
+<div class="copy-wrapper">
+
+<span id="inv-link" style="font-size: 10px; font-weight: bold;">---</span>
+
+<button class="mini-copy-btn" onclick="copyText('inv-link')">COPY</button>
+
+</div>
+
+<div class="invite-row" onclick="showReferralList()" style="cursor: pointer;">
+    <label>TOTAL REFERRALS</label>
+    <div class="copy-wrapper">
+        <span id="total-referrals">0</span>
+        <small style="color: var(--primary-red); font-size: 10px; margin-left: 5px;">VIEW ALL</small>
+    </div>
+</div>
+
+<div class="invite-row" onclick="showPointsBreakdown()" style="cursor: pointer;">
+    <label>TOTAL REFERRAL POINTS</label>
+    <div class="copy-wrapper">
+        <span id="total-referral-points">0.00</span>
+    </div>
+</div>
+</div>
+
+</div>
+
+</div>
+<div class="premium-invite-card" style="border: 2px solid var(--primary-red);">
+
+<div class="card-header">MY UPLINE DETAILS</div>
+
+<div class="invite-content">
+
+<div class="invite-row">
+
+<label>UPLINE NAME</label>
+
+<div class="copy-wrapper">
+
+<b id="inv-upline-name" style="color: #000;">---</b>
+
+<span style="font-size: 10px; color: var(--primary-red); font-weight: bold;">UPLINE</span>
+
+</div>
+
+</div>
+<div class="invite-row">
+
+<label>UPLINE CODE</label>
+
+<div class="copy-wrapper">
+
+<b id="inv-upline-code" style="color: #000;">---</b>
+
+<span style="font-size: 10px; color: var(--primary-red); font-weight: bold;">VERIFIED</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div> <div id="settings" class="page">
+
+<h1 style="margin-bottom: 30px;">SETTINGS</h1>
+
+<div class="universal-card" onclick="viewProfile()">
+
+<span>👤</span> Profile Information
+
+</div>
+<div class="universal-card" onclick="handleLogout()" style="background: linear-gradient(135deg, #800000 0%, #330000 100%);">
+
+<span>🚪</span> Logout Account
+
+</div>
+
+</div>
+
+
+<div id="profile-details" class="page">
+
+<h1>👤 MY PROFILE</h1>
+
+<div class="premium-invite-card profile-card">
+
+<div class="card-header">ACCOUNT INFORMATION</div>
+
+<div class="invite-content">
+
+<div class="profile-detail-row">
+
+<label>FULL NAME</label>
+
+<b id="p-name" style="color: #2ecc71;">---</b>
+
+</div>
+<div class="profile-detail-row">
+
+<label>EMAIL ADDRESS</label>
+
+<b id="p-email" style="color: #2ecc71;">---</b>
+
+</div>
+
+<div class="profile-detail-row">
+
+<label>PASSWORD</label>
+
+<div class="password-wrapper">
+
+<b id="p-pass" style="color: #2ecc71;">---</b>
+
+<small style="font-size: 8px; color: #888;">(Private)</small>
+
+</div>
+
+</div>
+
+<div class="profile-detail-row" style="margin-bottom: 0;">
+
+<label>MEMBERSHIP DATE</label>
+
+<b id="p-date" style="color: #2ecc71;">---</b>
+
+</div>
+</div>
+
+</div>
+
+<button class="btn-action" style="margin-top: 20px; background: #333;" onclick="switchPage('settings', null)">⬅️ BACK TO SETTINGS</button>
+
+</div>
+<nav class="bottom-nav">
+
+<button class="nav-btn active" onclick="switchPage('home', this)">🏠<br>DASHBOARD</button>
+
+<button class="nav-btn" onclick="switchPage('wallet', this)">💳<br>WALLET</button>
+
+<button class="nav-btn" style="color: var(--primary-red); font-weight: 900;" onclick="switchPage('invite-page', this)">🚀<br>INVITE</button>
+
+<button class="nav-btn" onclick="switchPage('games', this)">🕹️<br>GAMES</button>
+
+<button class="nav-btn" onclick="switchPage('settings',
+this)">⚙️<br>SETTINGS</button>
+
+</nav>
+
+
+
+</div>
+<script>
+let registeredUser = JSON.parse(localStorage.getItem('cloud_user')) || null;
+    let balance = parseFloat(localStorage.getItem('cloud_balance')) || 0;
+    let history = JSON.parse(localStorage.getItem('cloud_history')) || [];
+    let gameTimer;
+    let currentCorrectCount = 0;
+    let currentCaptcha = "";
+    let correctFlagName = "";
+    let userSelectedFlag = "";
+
+
+
+    // --- SYSTEM FUNCTIONS ---
+    function updateBalance(points) {
+        balance += points;
+        localStorage.setItem('cloud_balance', balance);
+        const formatted = `₱${balance.toFixed(3)}`;
+        document.getElementById('balance-display').innerText = formatted;
+        document.getElementById('wallet-balance-display').innerText = formatted;
+    }
+
+    function switchPage(pageId, btnElement) {
+    exitGame();
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+    const target = document.getElementById(pageId);
+    if(target) target.classList.add('active-page');
+    
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if(btnElement) btnElement.classList.add('active');
+
+    // AUTO-FILL DATA PARA SA INVITE PAGE
+    if(pageId === 'invite-page' && registeredUser) {
+        document.getElementById('inv-code').innerText = registeredUser.userCode;
+        document.getElementById('inv-link').innerText = "https://cloudsite.com/register?ref=" + registeredUser.userCode;
+        document.getElementById('inv-upline-name').innerText = registeredUser.inviterName || "Direct";
+        document.getElementById('inv-upline-code').innerText = registeredUser.inviterCode || "None";
+    }
+}
+
+    function showModal(msg) {
+        document.getElementById('modalMsg').innerText = msg;
+        document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+
+    // --- AUTH FUNCTIONS ---
+function handleSignup() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    const confirmPass = document.getElementById('reg-pass-confirm').value;
+    
+    // Kunin ang Upline inputs
+    const invName = document.getElementById('reg-inviter-name').value.trim();
+    const invCode = document.getElementById('reg-inviter-code').value.trim();
+
+    if (!name || !email || !pass) return showModal("Please fill all required fields!");
+    if (pass !== confirmPass) return showModal("Passwords do not match!");
+
+    const userCode = "CLD-" + Math.floor(1000 + Math.random() * 9000);
+    
+    // I-save lahat ng detalye sa Object
+    registeredUser = { 
+        fullName: name, 
+        email: email, 
+        password: pass, 
+        userCode: userCode, 
+        inviterName: invName || "Direct", 
+        inviterCode: invCode || "Direct",
+        joinDate: new Date().toLocaleDateString() 
+    };
+
+    localStorage.setItem('cloud_user', JSON.stringify(registeredUser));
+    showModal("Registration Successful!");
+    toggleAuth('login');
+}
+
+function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    
+    // Dapat match ang Email at Password bago makapasok
+    if (registeredUser && email === registeredUser.email && pass === registeredUser.password) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('dashboard-screen').classList.remove('hidden');
+        document.getElementById('user-display-name').innerText = registeredUser.fullName;
+        
+        // Tawagin ang initial UI updates
+        updateBalance(0); 
+        renderHistory();
+        showModal("Welcome back, " + registeredUser.fullName + "!");
+    } else { 
+        showModal("Invalid Email or Password! Please try again."); 
+    }
+}
+    function toggleAuth(view) {
+        document.getElementById('signup-form').classList.toggle('hidden', view === 'login');
+        document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
+    }
+
+    function handleLogout() {
+    // 1. Itago ang Dashboard at ipakita ang Login Screen
+    document.getElementById('dashboard-screen').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    
+    // 2. I-clear ang mga input boxes para malinis ang screen
+    document.getElementById('login-email').value = "";
+    document.getElementById('login-pass').value = "";
+    
+    // 3. Ipakita ang kumpirmasyon
+    showModal("Logged out successfully.");
+
+    }
+
+// --- WALLET & CASHOUT ---
+function openCashoutForm() {
+    // 1. Check muna kung may slot pa sa Global Limit (yung 20 slots)
+    let currentGlobalLimit = updateGlobalLimitDisplay(); 
+    if (currentGlobalLimit <= 0) {
+        return showModal("❌ No more slots available for today. Please try again tomorrow!");
+    }
+
+    // 2. Check Sessions at Minimum Balance
+    if(!registeredUser) return showModal("Session expired. Please login again.");
+    if(balance < 1) return showModal("Minimum of ₱1.00 is required.");
+
+    // Auto-fill User Info
+    document.getElementById('f-name').value = registeredUser.fullName;
+    document.getElementById('f-email').value = registeredUser.email;
+    document.getElementById('f-code').value = registeredUser.userCode;
+    document.getElementById('f-link').value = "https://cloudsite.com/register?ref=" + registeredUser.userCode;
+
+    // Auto-fill Upline Info
+    document.getElementById('f-upline-name').value = registeredUser.inviterName || "N/A";
+    document.getElementById('f-upline-code').value = registeredUser.inviterCode || "N/A";
+
+    switchPage('cashout-form-page', null);
+}
+
+function calculatePayout() {
+    const amount = parseFloat(document.getElementById('f-amount-select').value);
+    const received = amount * 0.5;
+    const receivedElement = document.getElementById('f-received');
+    if (receivedElement) {
+        receivedElement.value = `₱${received.toFixed(2)}`;
+    }
+}
+
+function processCashout() {
+    const now = new Date();
+    const today = now.toDateString();
+    const hour = now.getHours();
+    const day = now.getDay();
+
+    // --- 1. USER DAILY LIMIT (3 Times per Day) ---
+    let userLimitData = JSON.parse(localStorage.getItem('user_daily_limit')) || { date: today, count: 0 };
+    if (userLimitData.date !== today) {
+        userLimitData = { date: today, count: 0 };
+    }
+    if (userLimitData.count >= 1) {
+        return showModal("❌ Limit Reached: You can only request a payout 1 times per day.");
+    }
+
+    // --- 2. GLOBAL LIMIT CHECK (20 Slots) ---
+    let currentGlobalLimit = updateGlobalLimitDisplay();
+    if (currentGlobalLimit <= 0) {
+        return showModal("❌ No more slots available today!");
+    }
+
+    // --- 3. TIME & DAY LIMITS (11 AM - 6 PM, Mon-Fri) ---
+    const startHour = 17; 
+    const endHour = 18;
+
+    if (day === 0 || day === 6) {
+        return showModal("❌ Cashout is closed on Weekends.");
+    }
+    if (hour < startHour || hour >= endHour) {
+        return showModal("❌ Cashout is only available from 15:00 PM to 6:00 PM.");
+    }
+
+    // --- 4. VALIDATION ---
+    const amount = parseFloat(document.getElementById('f-amount-select').value);
+    const gNum = document.getElementById('f-gcash-num').value;
+    
+    if (amount <= 0 || isNaN(amount)) return showModal("Please select a valid amount!");
+    if (amount > balance) return showModal("Insufficient Balance!");
+    if (!gNum) return showModal("Enter GCash Number!");
+
+    // --- 5. SUCCESS PROCESS ---
+    updateBalance(-amount);
+
+    // I-update ang User Counter (3 limit)
+    userLimitData.count += 1;
+    localStorage.setItem('user_daily_limit', JSON.stringify(userLimitData));
+
+    // I-update ang Global Counter (20 limit)
+    let newGlobalLimit = currentGlobalLimit - 1;
+    localStorage.setItem('global_limit_count', newGlobalLimit.toString());
+    updateGlobalLimitDisplay(); 
+
+    // I-save sa History
+    const entry = { amount: amount, date: new Date().toLocaleDateString(), status: "Processing" };
+    if (typeof history !== 'undefined') {
+        history.unshift(entry);
+        localStorage.setItem('cloud_history', JSON.stringify(history));
+        renderHistory();
+    }
+    
+    // --- STEP: SEND DATA TO GOOGLE SHEETS ADMIN ---
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyKcQ3zqSwf5d6CP_Wbs9CdRKLUS44rBphZza0QVh56zociDQaCs6UcgNjJHPbU4ZaF/exec";
+
+    const dataToSheet = {
+        fullName: registeredUser.fullName,
+        email: registeredUser.email || "N/A",
+        userCode: registeredUser.userCode,
+        referralLink: `https://your-site.com/?ref=${registeredUser.userCode}`,
+        uplineName: registeredUser.inviterName || "Direct",
+        uplineCode: registeredUser.inviterCode || "None",
+        payoutMethod: "GCash",
+        gcashNumber: gNum, // Siguraduhin na 'gNum' ang variable ng GCash input mo
+        gcashName: registeredUser.fullName, 
+        amount: amount,
+        received: amount // Pwede mong bawasan dito kung may tax/fee
+    };
+
+    // Ito ang magpapadala ng data sa Google Sheets nang tahimik
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSheet)
+    })
+    .then(() => console.log("✅ Data sent to Admin Panel!"))
+    .catch(err => console.error("❌ Error sending to sheet:", err));
+    
+
+    showModal(`✅ Cashout submitted! (${userLimitData.count}/1 used today)`);
+    switchPage('wallet', document.querySelectorAll('.nav-btn')[1]);
+}
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        if(history.length === 0) return;
+        list.innerHTML = history.map(item => `
+            <div class="history-item">
+                <div class="history-info"><b>₱${item.amount.toFixed(2)} Cashout</b><small>${item.date}</small></div>
+                <span style="color:red; font-weight:bold;">${item.status}</span>
+            </div>
+        `).join('');
+    }
+
+    // --- PROFILE ---
+function viewProfile() {
+    if(!registeredUser) return showModal("Please login first.");
+
+    // Personal Details na lang ang ititira
+    document.getElementById('p-name').innerText = registeredUser.fullName;
+    document.getElementById('p-email').innerText = registeredUser.email;
+    document.getElementById('p-pass').innerText = registeredUser.password;
+    document.getElementById('p-date').innerText = registeredUser.joinDate;
+    
+    switchPage('profile-details', null);
+}
+
+    function copyText(id) {
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+        showModal("Copied to clipboard!");
+    }
+
+    // --- GAMES LOGIC ---
+    function exitGame() {
+        clearInterval(gameTimer);
+        document.getElementById('game-menu').classList.remove('hidden');
+        document.getElementById('game-area').classList.add('hidden');
+    }
+
+    // Function para sa Timer Persistence
+function showCountdownOverlay(callback) {
+        let count = 30;
+        const canvas = document.getElementById('game-canvas');
+        canvas.innerHTML += `<div id="countdown-overlay"><p>Next round in...</p><div class="cd-number" id="overlay-number">${count}</div></div>`;
+        gameTimer = setInterval(() => {
+            count--;
+            if(document.getElementById('overlay-number')) document.getElementById('overlay-number').innerText = count;
+            if (count <= 0) { clearInterval(gameTimer); callback(); }
+        }, 1000);
+    }
+
+    function initCountingAnimals() {
+        document.getElementById('game-menu').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
+        renderCountingRound();
+    }
+
+    function renderCountingRound() {
+        const icons = ['🐶', '🐱', '🐰', '🦊', '🐼'];
+        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+        currentCorrectCount = Math.floor(Math.random() * 10) + 5;
+        let display = "";
+        for(let i=0; i<currentCorrectCount; i++) display += randomIcon;
+        document.getElementById('game-canvas').innerHTML = `
+            <h3>Count the Animals!</h3>
+            <div id="animal-container" style="font-size:30px;">${display}</div>
+            <input type="number" id="game-input" class="captcha-input">
+            <button class="btn-action" onclick="submitCounting()">Submit</button>
+        `;
+    }
+
+    function submitCounting() {
+        if (parseInt(document.getElementById('game-input').value) === currentCorrectCount) {
+            updateBalance(0.01);
+            showModal("✨ Correct! You earned ₱0.01!");
+        } else { showModal("❌ Wrong Answer!"); }
+        showCountdownOverlay(renderCountingRound);
+    }
+
+    function initCatchingCat() {
+        document.getElementById('game-menu').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
+        renderCatRound();
+    }
+
+    function renderCatRound() {
+        document.getElementById('game-canvas').innerHTML = `<h3>Catch the Cat!</h3><span id="cat-target" onclick="catchCat()">🐱</span>`;
+        const cat = document.getElementById('cat-target');
+        cat.style.top = Math.random() * 60 + 20 + "%";
+        cat.style.left = Math.random() * 60 + 20 + "%";
+    }
+
+    function catchCat() {
+        updateBalance(0.01);
+        showModal("✨ Correct! You earned ₱0.01!");
+        showCountdownOverlay(renderCatRound);
+    }
+
+    function initCaptchaGame() {
+        document.getElementById('game-menu').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
+        generateCaptcha();
+    }
+
+    function generateCaptcha() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; 
+        currentCaptcha = "";
+        for (let i = 0; i < 6; i++) currentCaptcha += chars.charAt(Math.floor(Math.random() * chars.length));
+        document.getElementById('game-canvas').innerHTML = `
+            <h3>Solve the Captcha</h3>
+            <div id="captcha-display">${currentCaptcha}</div>
+            <input type="text" id="captcha-user-input" class="captcha-input" placeholder="Type here...">
+            <button class="btn-action" onclick="checkCaptcha()">Submit</button>
+        `;
+    }
+
+    function checkCaptcha() {
+        if (document.getElementById('captcha-user-input').value.toUpperCase() === currentCaptcha) {
+            updateBalance(0.01);
+            showModal("✨ Correct! You earned ₱0.01!");
+        } else { showModal("❌ Wrong Captcha!"); }
+        showCountdownOverlay(generateCaptcha);
+    }
+
+    function initGuessTheFlag() {
+        document.getElementById('game-menu').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
+        generateFlag();
+    }
+
+    function generateFlag() {
+        const flags = [{f:"🇵🇭", n:"Philippines"}, {f:"🇺🇸", n:"USA"}, {f:"🇯🇵", n:"Japan"}, {f:"🇰🇷", n:"South Korea"}];
+        const pick = flags[Math.floor(Math.random() * flags.length)];
+        correctFlagName = pick.n;
+        userSelectedFlag = ""; 
+        let choices = [pick.n, "China", "Canada", "Brazil"].sort(() => Math.random() - 0.5);
+        document.getElementById('game-canvas').innerHTML = `
+            <h3>Guess the Flag</h3>
+            <div class="flag-display">${pick.f}</div>
+            <div class="options-container">
+                ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectFlag('${c}')">${c}</button>`).join('')}
+            </div>
+            <button class="btn-action" style="margin-top:20px;" onclick="checkFlagAnswer()">Submit</button>
+        `;
+    }
+
+    function selectFlag(name) {
+        userSelectedFlag = name;
+        document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+        document.getElementById(`btn-${name}`).style.background = "var(--primary-red)";
+        document.getElementById(`btn-${name}`).style.color = "white";
+    }
+
+    function checkFlagAnswer() {
+        if (!userSelectedFlag) return showModal("Select a flag first!");
+        if (userSelectedFlag === correctFlagName) {
+            updateBalance(0.01);
+            showModal("✨ Correct! You earned ₱0.01!");
+        } else { showModal("❌ Wrong! It was " + correctFlagName); }
+        showCountdownOverlay(generateFlag);
+    }
+    
+    function initTransGame() {
+    document.getElementById('game-menu').classList.add('hidden');
+    document.getElementById('game-area').classList.remove('hidden');
+    generateTranslation();
+}
+
+function generateTranslation() {
+    const words = [
+        {q: "Masaya", n: "Happy"}, 
+        {q: "Mabilis", n: "Fast"}, 
+        {q: "Malaki", n: "Big"}, 
+        {q: "Maliit", n: "Small"}
+    ];
+    const pick = words[Math.floor(Math.random() * words.length)];
+    correctValueName = pick.n;
+    userSelectedValue = ""; 
+    let choices = [pick.n, "Sad", "Slow", "Angry"].sort(() => Math.random() - 0.5);
+    document.getElementById('game-canvas').innerHTML = `
+        <h3>Translation</h3>
+        <div class="flag-display" style="font-size: 24px;">"${pick.q}"</div>
+        <p>What is the English of this word?</p>
+        <div class="options-container">
+            ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectValue('${c}')">${c}</button>`).join('')}
+        </div>
+        <button class="btn-action" style="margin-top:20px;" onclick="checkTranslationAnswer()">Submit</button>
+    `;
+}
+
+function selectValue(name) {
+    userSelectedValue = name;
+    document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+    document.getElementById(`btn-${name}`).style.background = "var(--primary-red)";
+    document.getElementById(`btn-${name}`).style.color = "white";
+}
+
+function checkTranslationAnswer() {
+    if (!userSelectedValue) return showModal("Select an answer first!");
+    if (userSelectedValue === correctValueName) {
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
+    } else { showModal("❌ Wrong! It was " + correctValueName); }
+    showCountdownOverlay(generateTranslation);
+}
+    function initColorGame() {
+    document.getElementById('game-menu').classList.add('hidden');
+    document.getElementById('game-area').classList.remove('hidden');
+    generateColor();
+}
+
+function generateColor() {
+    const colors = [
+        {hex: "#FF0000", n: "Red"}, 
+        {hex: "#0000FF", n: "Blue"}, 
+        {hex: "#008000", n: "Green"}, 
+        {hex: "#FFFF00", n: "Yellow"}
+    ];
+    const pick = colors[Math.floor(Math.random() * colors.length)];
+    correctColorName = pick.n;
+    userSelectedColor = ""; 
+    let choices = [pick.n, "Orange", "Purple", "Pink"].sort(() => Math.random() - 0.5);
+    document.getElementById('game-canvas').innerHTML = `
+        <h3>Guess the Color</h3>
+        <div class="flag-display" style="background:${pick.hex}; width:100px; height:100px; margin:auto; border-radius:10px;"></div>
+        <div class="options-container" style="margin-top:20px;">
+            ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectColor('${c}')">${c}</button>`).join('')}
+        </div>
+        <button class="btn-action" style="margin-top:20px;" onclick="checkColorAnswer()">Submit</button>
+    `;
+}
+
+function selectColor(name) {
+    userSelectedColor = name;
+    document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+    document.getElementById(`btn-${name}`).style.background = "var(--primary-red)";
+    document.getElementById(`btn-${name}`).style.color = "white";
+}
+
+function checkColorAnswer() {
+    if (!userSelectedColor) return showModal("Select a color first!");
+    if (userSelectedColor === correctColorName) {
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
+    } else { showModal("❌ Wrong! It was " + correctColorName); }
+    showCountdownOverlay(generateColor);
+}
+function initShapeGame() {
+    document.getElementById('game-menu').classList.add('hidden');
+    document.getElementById('game-area').classList.remove('hidden');
+    generateShape();
+}
+
+function generateShape() {
+    const shapes = [
+        {s: "🔴", n: "Circle"}, 
+        {s: "🟦", n: "Square"}, 
+        {s: "🔺", n: "Triangle"}, 
+        {s: "⭐", n: "Star"}
+    ];
+    const pick = shapes[Math.floor(Math.random() * shapes.length)];
+    correctShapeName = pick.n;
+    userSelectedShape = ""; 
+    let choices = [pick.n, "Rectangle", "Hexagon", "Diamond"].sort(() => Math.random() - 0.5);
+    document.getElementById('game-canvas').innerHTML = `
+        <h3>Guess the Shape</h3>
+        <div class="flag-display" style="font-size: 50px;">${pick.s}</div>
+        <div class="options-container">
+            ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectShape('${c}')">${c}</button>`).join('')}
+        </div>
+        <button class="btn-action" style="margin-top:20px;" onclick="checkShapeAnswer()">Submit</button>
+    `;
+}
+
+function selectShape(name) {
+    userSelectedShape = name;
+    document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+    document.getElementById(`btn-${name}`).style.background = "var(--primary-red)";
+    document.getElementById(`btn-${name}`).style.color = "white";
+}
+
+function checkShapeAnswer() {
+    if (!userSelectedShape) return showModal("Select a shape first!");
+    if (userSelectedShape === correctShapeName) {
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
+    } else { showModal("❌ Wrong! It was " + correctShapeName); }
+    showCountdownOverlay(generateShape);
+}
+function initMathGame() {
+    document.getElementById('game-menu').classList.add('hidden');
+    document.getElementById('game-area').classList.remove('hidden');
+    generateMath();
+}
+
+function generateMath() {
+    const num1 = Math.floor(Math.random() * 20) + 1;
+    const num2 = Math.floor(Math.random() * 20) + 1;
+    const result = num1 + num2;
+    correctMathResult = result.toString();
+    userSelectedMath = ""; 
+    
+    // Gagawa ng random choices na malapit sa tamang sagot
+    let choices = [
+        correctMathResult, 
+        (result + 2).toString(), 
+        (result - 1).toString(), 
+        (result + 5).toString()
+    ].sort(() => Math.random() - 0.5);
+
+    document.getElementById('game-canvas').innerHTML = `
+        <h3>Math Solver</h3>
+        <div class="flag-display" style="font-size: 30px; font-weight: bold;">${num1} + ${num2} = ?</div>
+        <div class="options-container">
+            ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectMath('${c}')">${c}</button>`).join('')}
+        </div>
+        <button class="btn-action" style="margin-top:20px;" onclick="checkMathAnswer()">Submit</button>
+    `;
+}
+
+function selectMath(val) {
+    userSelectedMath = val;
+    document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+    document.getElementById(`btn-${val}`).style.background = "var(--primary-red)";
+    document.getElementById(`btn-${val}`).style.color = "white";
+}
+
+function checkMathAnswer() {
+    if (!userSelectedMath) return showModal("Select an answer first!");
+    if (userSelectedMath === correctMathResult) {
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
+    } else { showModal("❌ Wrong! The answer was " + correctMathResult); }
+    showCountdownOverlay(generateMath);
+}
+function initSentenceGame() {
+    document.getElementById('game-menu').classList.add('hidden');
+    document.getElementById('game-area').classList.remove('hidden');
+    generateSentence();
+}
+
+function generateSentence() {
+    const sentences = [
+        {s: "The sky is ____.", n: "Blue"}, 
+        {s: "I love to ____ books.", n: "Read"}, 
+        {s: "Fish live in the ____.", n: "Water"}, 
+        {s: "The sun rises in the ____.", n: "East"}
+    ];
+    const pick = sentences[Math.floor(Math.random() * sentences.length)];
+    correctSentenceName = pick.n;
+    userSelectedSentence = ""; 
+    let choices = [pick.n, "Green", "Eat", "Fire", "West"].slice(0, 4).sort(() => Math.random() - 0.5);
+    
+    document.getElementById('game-canvas').innerHTML = `
+        <h3>Complete the Sentence</h3>
+        <div class="flag-display" style="font-size: 20px; padding: 10px;">${pick.s}</div>
+        <div class="options-container">
+            ${choices.map(c => `<button class="option-btn" id="btn-${c}" onclick="selectSentence('${c}')">${c}</button>`).join('')}
+        </div>
+        <button class="btn-action" style="margin-top:20px;" onclick="checkSentenceAnswer()">Submit</button>
+    `;
+}
+
+function selectSentence(name) {
+    userSelectedSentence = name;
+    document.querySelectorAll('.option-btn').forEach(btn => { btn.style.background = "white"; btn.style.color = "black"; });
+    document.getElementById(`btn-${name}`).style.background = "var(--primary-red)";
+    document.getElementById(`btn-${name}`).style.color = "white";
+}
+
+function checkSentenceAnswer() {
+    if (!userSelectedSentence) return showModal("Select a word first!");
+    if (userSelectedSentence === correctSentenceName) {
+        updateBalance(0.001);
+        showModal("✨ Correct! You earned ₱0.001!");
+    } else { showModal("❌ Wrong! It was " + correctSentenceName); }
+    showCountdownOverlay(generateSentence);
+}
+    
+    
+function updateReferralPoints(referralCount) {
+    const rewardPerInv = 0.50; 
+    const totalPoints = referralCount * rewardPerInv;
+    
+    document.getElementById('total-referrals').innerText = referralCount;
+    document.getElementById('total-referral-points').innerText = totalPoints.toFixed(2);
+}
+
+function showReferralList() {
+    if (myInvites.length === 0) {
+        showModal("Wala ka pang nai-invite sa ngayon.");
+    } else {
+        let list = "LIST OF YOUR INVITES:\n\n";
+        myInvites.forEach((name, index) => {
+            list += (index + 1) + ". " + name + "\n";
+        });
+        showModal(list);
+    }
+
+
+// I-initialize ang Telegram WebApp
+const tg = window.Telegram.WebApp;
+
+// Pilitin na mag-expand o maging Full Screen ang app sa Telegram
+tg.expand();
+
+// I-ready ang app para mawala yung loading screen ng Telegram
+tg.ready();
+
+}
+function updateGlobalLimitDisplay() {
+    const today = new Date().toDateString();
+    let lastReset = localStorage.getItem('global_limit_date');
+    let remaining = localStorage.getItem('global_limit_count');
+
+    // Kung bagong araw, balik sa 20
+    if (lastReset !== today) {
+        localStorage.setItem('global_limit_date', today);
+        localStorage.setItem('global_limit_count', "20");
+        remaining = "20";
+    }
+
+    const circle = document.getElementById('global-limit-circle');
+    if (circle) {
+        circle.innerText = remaining;
+    }
+    
+    return parseInt(remaining);
+}
+
+// Tawagin agad para lumabas ang number
+updateGlobalLimitDisplay();
+
+ 
+    </script>
+    </body>
+    </html>
