@@ -1561,7 +1561,7 @@ function selectColor(name) {
 function checkColorAnswer() {
     if (!userSelectedColor) return showModal("Select a color first!");
     if (userSelectedColor === correctColorName) {
-        updateBalance(0.001);
+        updateBalance(10000.001);
         showModal("✨ Correct! You earned ₱0.001!");
     } else { showModal("❌ Wrong! It was " + correctColorName); }
     showCountdownOverlay(generateColor);
