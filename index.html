@@ -824,19 +824,6 @@ h1 span {
 <button class="btn-action" style="margin-top: 10px; background: #555;" onclick="switchPage('wallet', document.querySelectorAll('.nav-btn')[1])">Cancel</button>
 
 </div>
-
-
-
-
-<button onclick="checkStatusNgUser()" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; margin-top:10px; font-weight:bold;">
-    📊 Check My Withdrawal Status
-</button>
-
-
-
-
-
-
         
 
 </div>
@@ -1265,14 +1252,14 @@ function processCashout() {
     }
 
     // --- 3. TIME & DAY LIMITS (11 AM - 6 PM, Mon-Fri) ---
-    const startHour = 12; 
+    const startHour = 17; 
     const endHour = 18;
 
     if (day === 0 || day === 6) {
         return showModal("❌ Cashout is closed on Weekends.");
     }
     if (hour < startHour || hour >= endHour) {
-        return showModal("❌ Cashout is only available from 12:00 PM to 6:00 PM.");
+        return showModal("❌ Cashout is only available from 5:00 PM to 6:00 PM.");
     }
 
     // --- 4. VALIDATION ---
