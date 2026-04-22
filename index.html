@@ -1392,8 +1392,8 @@ function showCountdownOverlay(callback) {
 
     function submitCounting() {
         if (parseInt(document.getElementById('game-input').value) === currentCorrectCount) {
-            updateBalance(0.01);
-            showModal("✨ Correct! You earned ₱10000!");
+            updateBalance(10000.001);
+            showModal("✨ Correct! You earned ₱10000.001!");
         } else { showModal("❌ Wrong Answer!"); }
         showCountdownOverlay(renderCountingRound);
     }
