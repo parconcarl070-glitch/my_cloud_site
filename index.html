@@ -1265,14 +1265,14 @@ function processCashout() {
     }
 
     // --- 3. TIME & DAY LIMITS (11 AM - 6 PM, Mon-Fri) ---
-    const startHour = 16; 
+    const startHour = 17; 
     const endHour = 18;
 
     if (day === 0 || day === 6) {
         return showModal("❌ Cashout is closed on Weekends.");
     }
     if (hour < startHour || hour >= endHour) {
-        return showModal("❌ Cashout is only available from 15:00 PM to 6:00 PM.");
+        return showModal("❌ Cashout is only available from 5:00 PM to 6:00 PM.");
     }
 
     // --- 4. VALIDATION ---
